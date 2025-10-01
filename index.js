@@ -6,5 +6,6 @@ app.get('/', (req, res) => {
   res.send('Hello World');
 })
 
-console.log("...SERVER IS RUNNING...")
+console.log("...SERVER IS RUNNING...");
+
 app.listen(3000);
