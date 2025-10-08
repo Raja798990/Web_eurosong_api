@@ -6,8 +6,8 @@ app.get('/', (req, res) => {
   res.send('Hello World');
 })
 
-app.get('/goats', (req, res) => {
-  const goats = [
+
+const goats = [
     {
       "id":1,
       "name":"t-rex"
@@ -21,8 +21,29 @@ app.get('/goats', (req, res) => {
       "name":"clyde"
     },
   ]
+
+app.get('/goats', (req, res) => { 
   res.json(goats);
 })
+
+app.get('/goats/:id', (req, res) => { 
+  console.log(req.params.id);
+  let selectedGoat = null;
+
+  goats.forEach((goat) => { 
+    if (goat.id == req.params.id) { 
+      selectedGoat = goat;
+    }
+  });
+
+  res.json(selectedGoat);
+});
+
+app.delete('/goats/:id', (req, res) => { 
+  console.log("Delete the goat with id" + req.params.id);
+  res.send("Delete the goat");
+})
+
 
 console.log("...SERVER IS RUNNING...");
 
