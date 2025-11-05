@@ -1,67 +1,82 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 
-// we will use Prisma to connect to the database
-const {PrismaClient} = require('../generated/prisma');
+// we will use the prisma client to connect with the database
+const { PrismaClient } = require('../generated/prisma');
 const prisma = new PrismaClient();
 
-// ----------------
+// ------------
 // Get artist
-// ----------------
-
-router.get('/', async(req, res) => { 
- let artists = await prisma.artists.findMany();
+// ------------
+router.get('/', async (req, res) => {
+  let artists = await prisma.artists.findMany();
   res.json(artists);
 })
 
-// ----------------
-// POST add artist
-// Accept JSON body {name: "dj name" }
-// return success 
-// ----------------
-router.post('/', async(req, res) => { 
-  // cehck if artist with a name is already in the database
-  // simuilar as select * from artists where name = 'dj name'
-  const CheckArtist = await prisma.artists.findMany({
+// ------------
+// [POST ]Add artist
+// Accept JSON { "name" : "dj name"}
+// return succes
+// ------------
+router.post('/', async(req, res) => {
+  // Check if artist with a name is already in the database
+  // similar as SELECT * FROM Artists WHERE name LIKE 'dj ghost'
+  const checkArtist = await prisma.artists.findMany({
     where: {
       name: req.body.name
     }
   });
 
-  //If multiple artists it means it is already existing and i don't want to create new one 
-  if(CheckArtist.length > 0){
+  // If multiple artists it means it is already existing and I don't want to create a new one 
+  if (checkArtist.length > 0) {
     res.json(
       {
-        "status": "Artist name already exists"
+        "status": "Artist name already existing"
       }
-      
-    );
-  }else{
-    const newArtist = await prisma.artists.create({
-      data: {
-        name: req.body.name
+    )
+  } else {
+      const newArtist = await prisma.artists.create({
+        data: {
+          name: req.body.name
+        }
+      });
+
+      res.json(newArtist);
+  }
+})
+
+// ------------
+// Delete artist
+// ------------
+router.delete('/:id', async(req, res) => {
+  const deletedArtistId = req.params.id;
+
+  const deleteArtist = await prisma.artists.delete({
+    where: {
+      artist_id: parseInt(deletedArtistId)
     }
   });
 
-  res.send("[Post] add new artist");
-  
-}
+  res.json(deleteArtist);
 })
 
-// ----------------
-// Delete artist
-// ----------------
-router.delete('/:id', (req, res) => { 
-    // @todo: link to database
-  res.send("[DELETE] add new artists");
-})
-
-// ----------------
+// ------------
 // Update artist
-// ----------------
-router.put('/:id', (req, res) => { 
-    // @todo: link to database
-  res.send("[PUT] add new artists");
+// ------------
+router.put('/:id', async(req, res) => {
+  const updatedArtistId = req.params.id;
+  const updatedName = req.body.name;
+
+  const updatedArtist = await prisma.artists.update({
+    where: {
+      artist_id: parseInt(updatedArtistId)
+    },
+    data: {
+      name: updatedName
+    }
+  })
+
+  res.json(updatedArtist);
 })
 
 module.exports = router;
